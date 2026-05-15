@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-14
 **Author:** Logan Bennett (lobennett) with Claude
-**Status:** Draft — pending user review
+**Status:** Approved by user — ready to plan implementation
 
 ## 1. Goal
 
@@ -603,8 +603,8 @@ Multi-arch build via `docker buildx`:
 
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t ghcr.io/<org>/expdeploy:0.1.0 \
-  -t ghcr.io/<org>/expdeploy:latest \
+  -t ghcr.io/lobennett/expdeploy:0.1.0 \
+  -t ghcr.io/lobennett/expdeploy:latest \
   --push .
 ```
 
@@ -616,7 +616,7 @@ Tagged on every release via GitHub Actions. `<org>` is TBD (see open questions).
 docker run --rm -p 8080:8080 \
   -v $PWD/experiments:/experiments:ro \
   -v $PWD/data:/data \
-  ghcr.io/<org>/expdeploy:0.1.0 \
+  ghcr.io/lobennett/expdeploy:0.1.0 \
   run /experiments/flanker --subject 01 --data-dir /data
 ```
 
@@ -628,7 +628,7 @@ expdeploy build ./battery.toml \
   --output study.Dockerfile
 
 # Generated study.Dockerfile (visible, committable to repo):
-FROM ghcr.io/<org>/expdeploy:0.1.0
+FROM ghcr.io/lobennett/expdeploy:0.1.0
 COPY ./flanker /experiments/flanker
 COPY ./stroop /experiments/stroop
 COPY ./nback /experiments/nback
@@ -650,8 +650,8 @@ Generating a visible `study.Dockerfile` (rather than building from an in-memory 
 ### 9.4 Apptainer / HPC
 
 ```bash
-apptainer pull docker://ghcr.io/<org>/expdeploy:0.1.0
-apptainer build expdeploy.sif docker://ghcr.io/<org>/expdeploy:0.1.0
+apptainer pull docker://ghcr.io/lobennett/expdeploy:0.1.0
+apptainer build expdeploy.sif docker://ghcr.io/lobennett/expdeploy:0.1.0
 
 apptainer run --bind ./experiments:/experiments --bind ./data:/data \
   expdeploy.sif run /experiments/battery.toml --subject 01
@@ -753,18 +753,25 @@ Everything in §3–10:
 
 After at least one external lab has adopted the package for a published study without breaking changes for two minor releases.
 
-## 12. Open questions & risks
+## 12. Decisions & remaining risks
 
-1. **GHCR org name** — TBD. Placeholder `ghcr.io/<your-org>/expdeploy` throughout. Decide before tagging the first release.
-2. **Repo location on disk** — proposed `/Users/lobennett/grants/r01_rdoc/projects/expdeploy/` (sibling to `expfactory-deploy/`). Confirm or override during plan execution.
-3. **License** — MIT proposed. Confirm or override.
-4. **Python version range** — 3.11+ proposed (3.10 EOL is 2026-10).
-5. **jsPsych version pinning** — vendor a specific patch version (e.g., `8.2.3`); allow per-experiment manifests to override `[jspsych] version` only if the override is also vendored. Multiple versions can coexist in subdirs of `jspsych_assets/`.
-6. **Behavioral BIDS spec stability** — BEP for behavioral data is still evolving. Pin to BIDS 1.9; document the version in `dataset_description.json`; add `expdeploy migrate-bids` only if a future change requires it.
-7. **`expdeploy build` requires Docker/Podman on the host** — one place "Node-free" isn't quite "dep-free." Acceptable: building a study image is a one-time deployment activity.
-8. **PII handling** — v0.1 treats subject IDs as opaque. Docs will warn against putting MRNs / names there. No HIPAA-level controls.
-9. **"Extending jsPsych" scope in v0.1** — supports local file imports + `import_map_extras` aliases. Custom jsPsych plugins are just ES modules; they Just Work. **Not** in v0.1: a blessed-plugin registry, npm-install of plugins into the deploy package.
-10. **Single-subject-per-server assumption** — v0.1 matches the current model. Multi-subject is v0.3 work.
+### 12.1 Resolved (locked at spec approval, 2026-05-14)
+
+1. **GHCR org name** — `ghcr.io/lobennett/expdeploy`. Images published under the user's personal GitHub namespace.
+2. **Repo location on disk** — `/Users/lobennett/grants/r01_rdoc/projects/expdeploy/` (sibling to `expfactory-deploy/`).
+3. **License** — MIT.
+4. **Python version range** — 3.11+.
+5. **Manifest schema (§4.2)** — accepted as written, including `import_map_extras` naming and `[bids.columns.*]` shape.
+6. **Port handling (§7.5)** — no auto-retry; CLI errors with a suggested next port. Explicit departure from current package.
+
+### 12.2 Remaining risks / non-blocking items
+
+1. **jsPsych version pinning** — vendor a specific patch version (e.g., `8.2.3`); allow per-experiment manifests to override `[jspsych] version` only if the override is also vendored. Multiple versions can coexist in subdirs of `jspsych_assets/`.
+2. **Behavioral BIDS spec stability** — BEP for behavioral data is still evolving. Pin to BIDS 1.9; document the version in `dataset_description.json`; add `expdeploy migrate-bids` only if a future change requires it.
+3. **`expdeploy build` requires Docker/Podman on the host** — one place "Node-free" isn't quite "dep-free." Acceptable: building a study image is a one-time deployment activity.
+4. **PII handling** — v0.1 treats subject IDs as opaque. Docs will warn against putting MRNs / names there. No HIPAA-level controls.
+5. **"Extending jsPsych" scope in v0.1** — supports local file imports + `import_map_extras` aliases. Custom jsPsych plugins are just ES modules; they Just Work. **Not** in v0.1: a blessed-plugin registry, npm-install of plugins into the deploy package.
+6. **Single-subject-per-server assumption** — v0.1 matches the current model. Multi-subject is v0.3 work.
 
 ## 13. References
 
