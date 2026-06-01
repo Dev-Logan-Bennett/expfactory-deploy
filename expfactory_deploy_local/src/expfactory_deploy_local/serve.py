@@ -38,8 +38,6 @@ session = get_session()
 
 parser = build_parser()
 
-experiments = []
-
 template_dir = Path(package_dir, "templates")
 static_dir = Path(package_dir, "static/")
 experiments_dir = Path(static_dir, "experiments/")
@@ -97,7 +95,7 @@ def run(args=None):
             print(f"Starting server on port {port}")
             app.run()
             started = True
-        except OSError as e:
+        except OSError:
             print(f"Port {port} is in use, trying next port...")
             port += 1
             sys.argv = [None, str(port)]
@@ -140,16 +138,17 @@ class serve:
         timestamp = str(int(datetime.datetime.now(datetime.timezone.utc).timestamp()))
 
         try:
-            if not session.get("incomplete"):
-                if getattr(web.config, "experiments", None):
-                    session.incomplete = [*web.config.experiments]
-            exp_name = session.incomplete.pop() if session.get("incomplete") else Path("unknown_experiment")
+            incomplete = session.get("incomplete")
+            if not incomplete and getattr(web.config, "experiments", None):
+                session.incomplete = [*web.config.experiments]
+                incomplete = session.incomplete
+            exp_name = incomplete.pop() if incomplete else Path("unknown_experiment")
         except Exception as e:
             print(f"Error accessing session data: {e}")
             exp_name = Path("unknown_experiment")
 
         df, exp_id = raw_to_df(data)
-        cfg = web.config.run_config
+        cfg = getattr(web.config, "run_config", RunConfig())
         storage.save_raw(cfg, exp_id, timestamp, data)
 
         exp_stem = getattr(exp_name, "stem", str(exp_name))
