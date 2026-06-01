@@ -13,7 +13,6 @@ def raw_to_df(raw_data) -> tuple[pd.DataFrame, str]:
         tuple[pd.DataFrame, str]: A tuple containing the pandas
         DataFrame containing the trial data and the experiment ID.
     """
-    print(raw_data)
     if isinstance(raw_data, str):
         # It's a file path
         with open(raw_data, "r") as f:
