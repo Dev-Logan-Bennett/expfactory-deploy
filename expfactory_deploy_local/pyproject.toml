@@ -25,3 +25,6 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/expfactory_deploy_local"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
