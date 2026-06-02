@@ -1,0 +1,4 @@
+# web.py per-port session stores created at runtime
+src/expfactory_deploy_local/sessions_*/
+# virtualenv
+.venv/

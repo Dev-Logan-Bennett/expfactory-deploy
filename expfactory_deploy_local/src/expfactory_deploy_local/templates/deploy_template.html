@@ -7,10 +7,9 @@
     <script src="/static/js/bootstrap.min.js"></script>
     {% if group_index %}
     <script>
-        window.efVars = { 'group_index': {{ group_index }} }
+      window.efVars = { 'group_index': {{ group_index }} }
     </script>
-    {% endif %}
-    {{ experiment_load | safe }}
+    {% endif %} {{ experiment_load | safe }}
   </head>
   <body>
     <button
@@ -48,7 +47,8 @@
             "trialdata": data,
             "status": "finished",
             "browser": browser,
-            "interactionData": interactionData
+            "interactionData": interactionData,
+            "exp_id": "{{ exp_id }}"
           }
           return postData
         }
@@ -128,7 +128,8 @@
               "uniqueid": "{{ uniqueId }}",
               "current_trial": 0,
               "dateTime": (new Date().getTime()),
-              "trialdata": data
+              "trialdata": data,
+              "exp_id": "{{ exp_id }}"
             };
             $("body").append(finished_message);
             $(".display_stage").hide();
