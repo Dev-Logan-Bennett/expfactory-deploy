@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 
-def load_survey_tsv(path):
+def load_survey_tsv(path) -> list:
     lines = []
     with open(path) as f:
         tsv_file = csv.reader(f, delimiter="\t")
@@ -37,7 +37,7 @@ css_tag = '<link rel="stylesheet" type="text/css" href="{}">'
 """
 
 
-def format_external_scripts(scripts, exp_location, static_location="/"):
+def format_external_scripts(scripts, exp_location, static_location="/") -> str:
     js = []
     css = []
     for script in scripts:
@@ -66,7 +66,7 @@ def generate_experiment_context(
     static_rewrite=None,
     post_url="./serve",
     next_page="./serve",
-):
+) -> dict:
     """context used in old template
     experiment_load - list of scripts
     uniqueId - put in trial data, used to signify real exp vs preview
